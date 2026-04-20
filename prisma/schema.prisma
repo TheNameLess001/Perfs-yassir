@@ -1,0 +1,47 @@
+// prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql" // Ou mysql, sqlite selon ton choix
+  url      = env("DATABASE_URL")
+}
+
+model Restaurant {
+  id               String   @id // C'est le "Id" du CSV (ex: 5d18f006...)
+  name             String   // "Restaurant Name"
+  mainCity         String?  // "Main City"
+  subCity          String?  // "Sub City"
+  status           String?  // "Restaurant Status" (Active/Archived)
+  commission       Float?   // "Commission %"
+  
+  // Relation : Un restaurant peut avoir plusieurs commandes
+  orders           Order[]
+  
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
+
+model Order {
+  id               String   @id // C'est le "order id" du CSV (ex: YAF-1774...)
+  
+  // Clé étrangère vers le Restaurant ("Restaurant ID")
+  restaurantId     String
+  restaurant       Restaurant @relation(fields: [restaurantId], references: [id])
+  
+  status           String   // "status" (Delivered, Cancelled...)
+  orderDate        String?  // "order day"
+  orderTime        String?  // "order time"
+  
+  // KPIs financiers
+  payableAmount    Float?   // "Payable Amount"
+  finalEarnings    Float?   // "final earnings"
+  deliveryTime     Float?   // "delivery time(M)"
+  cancellationRsn  String?  // "cancellation reason"
+  paymentMethod    String?  // "Payment Method" (CASH/CARD)
+
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
